@@ -19,16 +19,25 @@
         this.state = { isLiked: false }
       }
 
+      setState(state) {
+        const oldElement = this.element
+        this.state = state
+        this.element = this.render()
+        if (this.onStateChange) {
+          this.onStateChange(oldElement, this.element)
+        }
+      }
+
       changeLikeText() {
-        const likeText = this.element.querySelector(".like-text")
-        this.state.isLiked = !this.state.isLiked
-        likeText.innerHTML = this.state.isLiked ? "取消" : "点赞"
+        this.setState({
+          isLiked: !this.state.isLiked
+        })
       }
 
       render() {
         this.element = createDOMFromString(`
           <button class="like-btn">
-            <span class="like-text">点赞</span>
+            <span class="like-text">${this.state.isLiked ? "取消" : "点赞"}</span>
             <span>👍</span>
           </button>
         `)
@@ -40,8 +49,16 @@
     const wrapper = document.querySelector('#wrapper')
     const likeButton1 = new LikeButton()
     wrapper.appendChild(likeButton1.render())
+    likeButton1.onStateChange = (oldElement, newElement) => {
+      wrapper.insertBefore(newElement, oldElement)
+      wrapper.removeChild(oldElement)
+    }
 
     const likeButton2 = new LikeButton()
     wrapper.appendChild(likeButton2.render())
+    likeButton2.onStateChange = (oldElement, newElement) => {
+      wrapper.insertBefore(newElement, oldElement)
+      wrapper.removeChild(oldElement)
+    }
   </script>
 </html>
